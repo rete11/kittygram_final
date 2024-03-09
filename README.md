@@ -1,26 +1,45 @@
-#  Как работать с репозиторием финального задания
+## Запуск проекта из репозитория в GitHub
 
-## Что нужно сделать
+Клонируем себе репозиторий: 
 
-Настроить запуск проекта Kittygram в контейнерах и CI/CD с помощью GitHub Actions
-
-## Как проверить работу с помощью автотестов
-
-В корне репозитория создайте файл tests.yml со следующим содержимым:
-```yaml
-repo_owner: ваш_логин_на_гитхабе
-kittygram_domain: полная ссылка (https://доменное_имя) на ваш проект Kittygram
-taski_domain: полная ссылка (https://доменное_имя) на ваш проект Taski
-dockerhub_username: ваш_логин_на_докерхабе
+```bash 
+git clone git@github.com:rete11/kittygram_final.git
 ```
 
-Скопируйте содержимое файла `.github/workflows/main.yml` в файл `kittygram_workflow.yml` в корневой директории проекта.
+Выполняем запуск:
 
-Для локального запуска тестов создайте виртуальное окружение, установите в него зависимости из backend/requirements.txt и запустите в корневой директории проекта `pytest`.
+```bash
+sudo docker compose -f docker-compose.yml up
+```
 
-## Чек-лист для проверки перед отправкой задания
+## После запуска: Миграции, сбор статистики
 
-- Проект Taski доступен по доменному имени, указанному в `tests.yml`.
-- Проект Kittygram доступен по доменному имени, указанному в `tests.yml`.
-- Пуш в ветку main запускает тестирование и деплой Kittygram, а после успешного деплоя вам приходит сообщение в телеграм.
-- В корне проекта есть файл `kittygram_workflow.yml`.
+После запуска нужно выполнить сбор статистики и миграцию для бэкенда. Статистика фронтенда собирается во время запуска контейнера, после чего он останавливается. 
+
+```bash
+sudo docker compose -f [имя-файла-docker-compose.yml] exec backend python manage.py migrate
+
+sudo docker compose -f [имя-файла-docker-compose.yml] exec backend python manage.py collectstatic
+
+sudo docker compose -f [имя-файла-docker-compose.yml] exec backend cp -r /app/collected_static/. /static/static/
+```
+
+теперь проект доступен на: 
+
+```
+http://localhost:9000/
+```
+
+## Описание переменных окружения
+
+Ниже пример файла .env c переменными окружения, необходимыми для запуска приложения
+
+```bash
+POSTGRES_DB=kittygram
+POSTGRES_USER=kittygram_user
+POSTGRES_PASSWORD=kittygram_password
+DB_NAME=kittygram
+DB_HOST=db
+DEBUG=False
+SECRET_KEY=django_secret_key_example
+```
